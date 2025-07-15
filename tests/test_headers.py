@@ -3,7 +3,7 @@ Tests for Header component
 """
 
 import pytest
-from src.components.headers import Header
+from nb_ui.components.headers import Header
 
 
 class TestHeader:

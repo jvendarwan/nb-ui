@@ -4,7 +4,7 @@ Tests for Typography component
 
 import pytest
 import re
-from src.components.typography import Typography
+from nb_ui.components.typography import Typography
 
 
 class TestTypography:

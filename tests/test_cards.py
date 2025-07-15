@@ -3,7 +3,7 @@ Tests for Card component
 """
 
 import pytest
-from src.components.cards import Card
+from nb_ui.components.cards import Card
 
 
 class TestCard:

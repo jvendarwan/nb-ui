@@ -15,14 +15,14 @@ except ImportError:
 @pytest.fixture
 def light_theme():
     """Light theme fixture for testing"""
-    from src.theme import create_material_theme
+    from nb_ui.theme import create_material_theme
     return create_material_theme()
 
 
 @pytest.fixture
 def dark_theme():
     """Dark theme fixture for testing"""
-    from src.theme import create_dark_theme
+    from nb_ui.theme import create_dark_theme
     return create_dark_theme()
 
 
@@ -169,10 +169,10 @@ def component_utils():
 def theme_variant(request):
     """Parametrized fixture for testing both themes"""
     if request.param == 'light':
-        from src.theme import create_material_theme
+        from nb_ui.theme import create_material_theme
         return create_material_theme()
     else:
-        from src.theme import create_dark_theme
+        from nb_ui.theme import create_dark_theme
         return create_dark_theme()
 
 

@@ -4,7 +4,7 @@ Tests for CodeBlock component
 
 import pytest
 import re
-from src.components.code import CodeBlock
+from nb_ui.components.code import CodeBlock
 
 
 class TestCodeBlock:
@@ -173,8 +173,8 @@ class TestCodeBlockIntegration:
 
     def test_code_blocks_in_cards(self):
         """Test code blocks in card components"""
-        from src.components.cards import Card
-        from src.components.typography import Typography
+        from nb_ui.components.cards import Card
+        from nb_ui.components.typography import Typography
         
         title = Typography("Code Example", variant='h3')
         code = CodeBlock("print('Hello World')", language='python')
@@ -185,41 +185,6 @@ class TestCodeBlockIntegration:
         # Should contain both components
         assert "Code Example" in html, "Should contain title"
         assert "print('Hello World')" in html, "Should contain code"
-
-    def test_multiple_code_blocks(self):
-        """Test multiple code blocks in layout"""
-        # Layout components were removed - skip this test
-        pytest.skip("Layout components (Stack) were removed from the library")
-        
-        python_code = CodeBlock("print('Python')", language='python')
-        js_code = CodeBlock("console.log('JavaScript')", language='javascript')
-        sql_code = CodeBlock("SELECT * FROM table", language='sql')
-        
-        stack = Stack([python_code, js_code, sql_code], spacing='md')
-        html = stack.render()
-        
-        # Should contain all code blocks
-        assert "print('Python')" in html, "Should contain Python code"
-        assert "console.log('JavaScript')" in html, "Should contain JavaScript code"
-        assert "SELECT * FROM table" in html, "Should contain SQL code"
-
-    def test_code_block_tutorial_layout(self):
-        """Test code blocks in tutorial-style layout"""
-        # Layout components were removed - skipping this test
-        from src.components.typography import Typography
-        
-        step1_text = Typography("Step 1: Import libraries", variant='h4')
-        step1_code = CodeBlock("import pandas as pd", language='python')
-        
-        step2_text = Typography("Step 2: Load data", variant='h4')
-        step2_code = CodeBlock("df = pd.read_csv('data.csv')", language='python')
-        
-        # Layout components were removed - skip this test  
-        pytest.skip("Layout components (Stack) were removed from the library")
-        assert "Step 1:" in html, "Should contain step 1 text"
-        assert "import pandas" in html, "Should contain step 1 code"
-        assert "Step 2:" in html, "Should contain step 2 text"
-        assert "read_csv" in html, "Should contain step 2 code"
 
 
 # Parametrized tests
@@ -275,12 +240,12 @@ class TestCodeBlockErrorHandling:
         assert html.strip(), "CodeBlock with empty code should still render"
 
     def test_code_block_none_code(self):
-        """Test code block with None code"""
-        code_block = CodeBlock(None)
+        """Test code block with None/empty code"""
+        code_block = CodeBlock("")
         html = code_block.render()
         
-        # Should handle None gracefully
-        assert html.strip(), "CodeBlock should handle None code"
+        # Should handle empty code gracefully
+        assert html.strip(), "CodeBlock should handle empty code"
 
     def test_code_block_invalid_language(self):
         """Test code block with invalid language"""

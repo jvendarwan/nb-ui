@@ -4,7 +4,7 @@ Tests for Container component
 
 import pytest
 import re
-from src.components.containers import Container
+from nb_ui.components.containers import Container
 
 
 class TestContainer:
@@ -169,7 +169,7 @@ class TestContainerErrorHandling:
 
     def test_container_with_children_list(self):
         """Test container with list of children"""
-        from src.components.typography import Typography
+        from nb_ui.components.typography import Typography
         
         children = [
             Typography("First item"),

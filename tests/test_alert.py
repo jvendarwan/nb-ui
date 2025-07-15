@@ -4,7 +4,7 @@ Tests for Alert component
 
 import pytest
 import re
-from src.components.alerts import Alert
+from nb_ui.components.alerts import Alert
 
 
 class TestAlert:
