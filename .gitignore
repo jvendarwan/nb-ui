@@ -151,3 +151,6 @@ Desktop.ini
 scratch/
 temp/
 tmp/ 
+
+# Local deployment guide (contains sensitive info)
+DEPLOYMENT_GUIDE.md 

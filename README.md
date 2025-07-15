@@ -32,6 +32,8 @@ Available themes: `material`, `antd`, `dark`
 set_theme("material")  # or "antd", "dark"
 ```
 
+**Note**: Themes are inspired by Material Design and Ant Design principles and are subject to change in future versions.
+
 ## 🧪 Running Tests
 
 ```bash

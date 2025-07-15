@@ -7,7 +7,7 @@ Thank you for your interest in contributing to nb-ui! This document provides gui
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/nb-ui.git
+git clone https://github.com/jvendarwan/nb-ui.git
 cd nb-ui
 ```
 
