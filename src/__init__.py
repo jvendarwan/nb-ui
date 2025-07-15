@@ -1,13 +1,13 @@
 """
 nb-ui: Essential UI Components for Data Science Notebooks
 
-A clean, Material UI inspired component library that makes 
+A clean, Material UI inspired component library that makes
 your Jupyter notebooks look professional without requiring HTML/CSS knowledge.
 Perfect for data scientists who want to create beautiful reports and presentations.
 
 Usage:
-    from src import Header, Card, Alert, Typography
-    
+    from nb_ui import Header, Card, Alert, Typography
+
     Header("Data Analysis Results", subtitle="Customer Churn Prediction").display()
     Card("Model achieved 94.2% accuracy", title="Key Findings")
 """
@@ -29,7 +29,7 @@ from .components import (
 # Utility functions
 from .utils import success, error, warning, info
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 # Essential exports for data science notebooks
 __all__ = [
@@ -50,6 +50,4 @@ __all__ = [
     "error",
     "warning",
     "info",
-    # Version
-    "__version__",
 ]
