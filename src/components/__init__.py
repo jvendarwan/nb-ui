@@ -12,11 +12,11 @@ from .code import CodeBlock
 from .containers import Container
 
 __all__ = [
-    'ComponentBase',
-    'Typography',
-    'Header',
-    'Card',
-    'Alert',
-    'CodeBlock',
-    'Container'
-] 
+    "ComponentBase",
+    "Typography",
+    "Header",
+    "Card",
+    "Alert",
+    "CodeBlock",
+    "Container",
+]

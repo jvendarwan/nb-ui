@@ -9,19 +9,25 @@ from .base import ComponentBase
 
 class CodeBlock(ComponentBase):
     """Code block component with syntax highlighting theme"""
-    
-    def __init__(self, code: str, language: str = 'python',
-                 showLineNumbers: bool = False, theme: Optional[str] = None, **props):
+
+    def __init__(
+        self,
+        code: str,
+        language: str = "python",
+        showLineNumbers: bool = False,
+        theme: Optional[str] = None,
+        **props,
+    ):
         super().__init__(theme, **props)
         self.code = code
         self.language = language
         self.showLineNumbers = showLineNumbers
-    
+
     def render(self) -> str:
         line_numbers = ""
         if self.showLineNumbers:
-            lines = self.code.split('\n')
-            line_numbers = '\n'.join(str(i + 1) for i in range(len(lines)))
+            lines = self.code.split("\n")
+            line_numbers = "\n".join(str(i + 1) for i in range(len(lines)))
             line_numbers_html = f"""
             <div style="background: #f8f9fa; 
                        border-right: 1px solid #e9ecef;
@@ -38,7 +44,7 @@ class CodeBlock(ComponentBase):
             """
         else:
             line_numbers_html = ""
-        
+
         return f"""
         <style>
             .code-block-{self.component_id} {{
@@ -67,4 +73,4 @@ class CodeBlock(ComponentBase):
             {line_numbers_html}
             <pre><code>{self.code}</code></pre>
         </div>
-        """ 
+        """

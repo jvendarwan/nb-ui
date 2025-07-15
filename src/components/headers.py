@@ -9,11 +9,19 @@ from .base import ComponentBase
 
 class Header(ComponentBase):
     """Header component with clean Material UI style"""
-    
-    def __init__(self, title: str, subtitle: str = "", 
-                 variant: str = 'h1', level: Optional[str] = None, color: str = 'primary',
-                 align: str = 'center', divider: bool = True,
-                 theme: Optional[str] = None, **props):
+
+    def __init__(
+        self,
+        title: str,
+        subtitle: str = "",
+        variant: str = "h1",
+        level: Optional[str] = None,
+        color: str = "primary",
+        align: str = "center",
+        divider: bool = True,
+        theme: Optional[str] = None,
+        **props,
+    ):
         super().__init__(theme, **props)
         self.title = title
         self.subtitle = subtitle
@@ -22,14 +30,14 @@ class Header(ComponentBase):
         self.color = color
         self.align = align
         self.divider = divider
-    
+
     def render(self) -> str:
         color_value = self._get_color(self.color)
         typo_styles = self._get_typography(self.variant)
-        
+
         subtitle_html = ""
         if self.subtitle:
-            subtitle_typo = self._get_typography('subtitle1')
+            subtitle_typo = self._get_typography("subtitle1")
             subtitle_html = f"""
             <p style="color: {self._get_color('textSecondary')}; 
                      font-size: {subtitle_typo.get('fontSize', '1rem')};
@@ -40,7 +48,7 @@ class Header(ComponentBase):
                 {self.subtitle}
             </p>
             """
-        
+
         divider_html = ""
         if self.divider:
             divider_html = f"""
@@ -51,7 +59,7 @@ class Header(ComponentBase):
                       width: 60px;
                       border-radius: 2px;">
             """
-        
+
         return f"""
         <style>
             .header-{self.component_id} {{
@@ -79,4 +87,4 @@ class Header(ComponentBase):
             {subtitle_html}
             {divider_html}
         </div>
-        """ 
+        """

@@ -18,7 +18,9 @@ def card(content: str, title: str = "", theme: str = "material", **kwargs):
     """Create a card with simplified API"""
     if title:
         # Create a card with header
-        card_content = f"<h3 style='margin: 0 0 1rem 0; font-weight: 600;'>{title}</h3>{content}"
+        card_content = (
+            f"<h3 style='margin: 0 0 1rem 0; font-weight: 600;'>{title}</h3>{content}"
+        )
         return Card(card_content, theme=theme, **kwargs)
     return Card(content, theme=theme, **kwargs)
 
@@ -81,11 +83,13 @@ def dark_theme():
 
 
 # Component creation shortcuts
-def create_dashboard(title: str, subtitle: str = "", content: str = "", theme: str = "material"):
+def create_dashboard(
+    title: str, subtitle: str = "", content: str = "", theme: str = "material"
+):
     """Create a dashboard layout with header and content"""
     # Header
     header(title, subtitle, theme=theme)
-    
+
     # Main content
     if content:
         card(content, theme=theme)
@@ -97,63 +101,75 @@ def container(content: str, maxWidth: str = "lg", theme: str = "material"):
 
 
 # Notebook-specific utilities
-def notebook_header(title: str, author: str = "", date: str = "", theme: str = "material"):
+def notebook_header(
+    title: str, author: str = "", date: str = "", theme: str = "material"
+):
     """Create a notebook header with metadata"""
     subtitle_parts = []
     if author:
         subtitle_parts.append(f"by {author}")
     if date:
         subtitle_parts.append(date)
-    
+
     subtitle = " • ".join(subtitle_parts)
     return header(title, subtitle, theme=theme)
 
 
-def code_result(code_str: str, result: str, language: str = "python", theme: str = "material"):
+def code_result(
+    code_str: str, result: str, language: str = "python", theme: str = "material"
+):
     """Display code and its result"""
     code(code_str, language=language, theme=theme)
     card(f"<strong>Output:</strong><br>{result}", theme=theme)
 
 
-def quick_table(data: List[List[str]], headers: Optional[List[str]] = None, theme: str = "material"):
+def quick_table(
+    data: List[List[str]], headers: Optional[List[str]] = None, theme: str = "material"
+):
     """Create a simple HTML table"""
     from .theme import ThemeProvider
+
     theme_obj = ThemeProvider.get_theme(theme)
-    
-    table_html = '<table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">'
-    
+
+    table_html = (
+        '<table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">'
+    )
+
     # Headers
     if headers:
-        table_html += '<thead><tr>'
+        table_html += "<thead><tr>"
         for header in headers:
-            table_html += f'''<th style="border: 1px solid {theme_obj.colors.get('divider', '#e0e0e0')}; 
+            table_html += f"""<th style="border: 1px solid {theme_obj.colors.get('divider', '#e0e0e0')}; 
                                        padding: 0.75rem; 
                                        background: {theme_obj.colors.get('background', '#f5f5f5')};
-                                       text-align: left; font-weight: 600;">{header}</th>'''
-        table_html += '</tr></thead>'
-    
+                                       text-align: left; font-weight: 600;">{header}</th>"""
+        table_html += "</tr></thead>"
+
     # Rows
-    table_html += '<tbody>'
+    table_html += "<tbody>"
     for row in data:
-        table_html += '<tr>'
+        table_html += "<tr>"
         for cell in row:
-            table_html += f'''<td style="border: 1px solid {theme_obj.colors.get('divider', '#e0e0e0')}; 
-                                       padding: 0.75rem;">{cell}</td>'''
-        table_html += '</tr>'
-    table_html += '</tbody></table>'
-    
+            table_html += f"""<td style="border: 1px solid {theme_obj.colors.get('divider', '#e0e0e0')}; 
+                                       padding: 0.75rem;">{cell}</td>"""
+        table_html += "</tr>"
+    table_html += "</tbody></table>"
+
     card(table_html, theme=theme)
 
 
 # Progress and loading utilities
-def progress_bar(value: int, max_value: int = 100, label: str = "", theme: str = "material"):
+def progress_bar(
+    value: int, max_value: int = 100, label: str = "", theme: str = "material"
+):
     """Create a progress bar"""
     from .theme import ThemeProvider
+
     theme_obj = ThemeProvider.get_theme(theme)
-    
+
     percentage = (value / max_value) * 100 if max_value > 0 else 0
-    primary_color = theme_obj.colors.get('primary', '#1976d2')
-    
+    primary_color = theme_obj.colors.get("primary", "#1976d2")
+
     progress_html = f"""
     <div style="margin: 1rem 0;">
         {f'<div style="margin-bottom: 0.5rem; font-weight: 500;">{label}</div>' if label else ''}
@@ -168,5 +184,5 @@ def progress_bar(value: int, max_value: int = 100, label: str = "", theme: str =
         </div>
     </div>
     """
-    
-    card(progress_html, theme=theme) 
+
+    card(progress_html, theme=theme)

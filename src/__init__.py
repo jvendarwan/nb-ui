@@ -23,7 +23,7 @@ from .components import (
     Card,
     Alert,
     CodeBlock,
-    Container
+    Container,
 )
 
 # Utility functions
@@ -34,25 +34,22 @@ __version__ = "0.1.0"
 # Essential exports for data science notebooks
 __all__ = [
     # Theme
-    'set_theme',
-    'get_theme', 
-    'list_themes',
-    
+    "set_theme",
+    "get_theme",
+    "list_themes",
     # Essential Components
-    'ComponentBase',
-    'Typography',
-    'Header',
-    'Card',
-    'Alert', 
-    'CodeBlock',
-    'Container',
-    
+    "ComponentBase",
+    "Typography",
+    "Header",
+    "Card",
+    "Alert",
+    "CodeBlock",
+    "Container",
     # Utility Functions
-    'success',
-    'error',
-    'warning', 
-    'info',
-    
+    "success",
+    "error",
+    "warning",
+    "info",
     # Version
-    '__version__'
-] 
+    "__version__",
+]

@@ -9,43 +9,49 @@ from .base import ComponentBase
 
 class Alert(ComponentBase):
     """Alert component with Material UI style"""
-    
-    def __init__(self, message: str, severity: str = 'info',
-                 variant: str = 'standard', onClose: bool = False,
-                 theme: Optional[str] = None, **props):
+
+    def __init__(
+        self,
+        message: str,
+        severity: str = "info",
+        variant: str = "standard",
+        onClose: bool = False,
+        theme: Optional[str] = None,
+        **props,
+    ):
         super().__init__(theme, **props)
         self.message = message
         self.severity = severity  # error, warning, info, success
         self.variant = variant  # standard, filled, outlined
         self.onClose = onClose
-    
+
     def render(self) -> str:
         # Severity configurations
         severity_configs = {
-            'error': {'color': self._get_color('error'), 'icon': '❌'},
-            'warning': {'color': self._get_color('warning'), 'icon': '⚠️'},
-            'info': {'color': self._get_color('info'), 'icon': 'ℹ️'},
-            'success': {'color': self._get_color('success'), 'icon': '✅'}
+            "error": {"color": self._get_color("error"), "icon": "❌"},
+            "warning": {"color": self._get_color("warning"), "icon": "⚠️"},
+            "info": {"color": self._get_color("info"), "icon": "ℹ️"},
+            "success": {"color": self._get_color("success"), "icon": "✅"},
         }
-        
-        config = severity_configs.get(self.severity, severity_configs['info'])
-        color = config['color']
-        icon = config['icon']
-        
+
+        config = severity_configs.get(self.severity, severity_configs["info"])
+        color = config["color"]
+        icon = config["icon"]
+
         # Variant styles
-        if self.variant == 'filled':
+        if self.variant == "filled":
             bg_color = color
-            text_color = '#ffffff'
-            border = 'none'
-        elif self.variant == 'outlined':
-            bg_color = 'transparent'
+            text_color = "#ffffff"
+            border = "none"
+        elif self.variant == "outlined":
+            bg_color = "transparent"
             text_color = color
             border = f"1px solid {color}"
         else:  # standard
             bg_color = f"{color}08"
             text_color = color
-            border = 'none'
-        
+            border = "none"
+
         close_button = ""
         if self.onClose:
             close_button = f"""
@@ -54,7 +60,7 @@ class Alert(ComponentBase):
                           font-size: 1.2rem; opacity: 0.7;"
                     onclick="this.parentElement.style.display='none';">×</button>
             """
-        
+
         return f"""
         <style>
             .alert-{self.component_id} {{
@@ -80,4 +86,4 @@ class Alert(ComponentBase):
             <span style="flex: 1;">{self.message}</span>
             {close_button}
         </div>
-        """ 
+        """
