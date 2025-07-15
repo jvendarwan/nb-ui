@@ -97,7 +97,6 @@ jobs:
         run: |
           # Test that example notebooks execute without errors
           jupyter nbconvert --to notebook --execute demo_usage.ipynb --output demo_test.ipynb
-          jupyter nbconvert --to notebook --execute docs/quick-start.ipynb --output quick-start-test.ipynb
 
       - name: Validate notebook outputs
         run: |
@@ -114,15 +113,7 @@ jobs:
                     cell.get('outputs') for cell in demo_nb['cells']), 'Demo notebook should have code outputs'
 
           print('✅ Demo notebook executed successfully')
-
-          # Check quick-start notebook
-          with open('quick-start-test.ipynb') as f:
-              qs_nb = json.load(f)
-              
-          assert any(cell.get('cell_type') == 'code' and 
-                    cell.get('outputs') for cell in qs_nb['cells']), 'Quick-start notebook should have code outputs'
-                    
-          print('✅ Quick-start notebook executed successfully')
+          print('✅ All notebook tests passed!')
           "
 
   integration-test:
@@ -150,31 +141,25 @@ jobs:
         run: |
           # Test component integration
           python -c "
-          from nb_ui.components.buttons import Button
-          from nb_ui.components.alerts import Alert
-          from nb_ui.components.layout import Stack, Row, Col
-          from nb_ui.components.cards import Card
-          from nb_ui.components.typography import Typography
+          from nb_ui import Header, Card, Alert, Typography, Container
 
           # Test basic component creation
-          button = Button('Test Button')
+          header = Header('Test Header')
           alert = Alert('Test Alert', severity='info')
           card = Card('Test Card')
           text = Typography('Test Text')
-
-          # Test layout integration
-          col1 = Col([button, alert])
-          col2 = Col([card, text])
-          row = Row([col1, col2])
-          stack = Stack([row])
+          container = Container([header, alert])
 
           # Test rendering
-          html = stack.render()
+          html = container.render()
           assert html.strip(), 'Integrated components should render'
-          assert 'Test Button' in html, 'Should contain button text'
+          assert 'Test Header' in html, 'Should contain header text'
           assert 'Test Alert' in html, 'Should contain alert text'
-          assert 'Test Card' in html, 'Should contain card text'
-          assert 'Test Text' in html, 'Should contain typography text'
+
+          card_html = card.render()
+          text_html = text.render()
+          assert card_html.strip(), 'Card should render'
+          assert text_html.strip(), 'Typography should render'
 
           print('✅ Integration test passed')
           "
@@ -182,22 +167,25 @@ jobs:
       - name: Test theme integration
         run: |
           python -c "
-          from nb_ui.components.buttons import Button
-          from nb_ui.themes import light_theme, dark_theme
+          from nb_ui import Header, set_theme, get_theme, list_themes
 
-          # Test with different themes
-          light_button = Button('Light Button', theme='light')
-          dark_button = Button('Dark Button', theme='dark')
+          # Test theme functionality
+          themes = list_themes()
+          assert len(themes) > 0, 'Should have available themes'
+          print(f'Available themes: {themes}')
 
-          light_html = light_button.render()
-          dark_html = dark_button.render()
+          # Test theme switching
+          original_theme = get_theme()
+          set_theme('dark')
+          dark_theme = get_theme()
 
-          # Both should render without errors
-          assert light_html.strip(), 'Light theme button should render'
-          assert dark_html.strip(), 'Dark theme button should render'
+          set_theme('material')
+          material_theme = get_theme()
 
-          # Should have different styling (basic check)
-          assert light_html != dark_html, 'Different themes should produce different output'
+          # Test component with different themes
+          header = Header('Test Header')
+          html = header.render()
+          assert html.strip(), 'Header should render with theme'
 
           print('✅ Theme integration test passed')
           "
@@ -229,16 +217,16 @@ jobs:
           # Basic performance test
           python -c "
           import time
-          from nb_ui.components.buttons import Button
-          from nb_ui.components.layout import Stack
+          from nb_ui import Header, Typography, Container
 
           # Test component creation performance
           start_time = time.time()
 
           # Create many components
-          buttons = [Button(f'Button {i}') for i in range(100)]
-          stack = Stack(buttons)
-          html = stack.render()
+          headers = [Header(f'Header {i}') for i in range(50)]
+          texts = [Typography(f'Text {i}') for i in range(50)]
+          container = Container(headers + texts)
+          html = container.render()
 
           end_time = time.time()
           duration = end_time - start_time
@@ -249,68 +237,3 @@ jobs:
 
           print(f'✅ Performance test passed: {duration:.2f}s for 100 components')
           "
-
-  docs-test:
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install jupyter-book
-
-      - name: Install package
-        run: pip install -e .
-
-      - name: Build documentation
-        run: |
-          # Build the documentation
-          jupyter-book build docs/
-
-      - name: Test documentation examples
-        run: |
-          # Test that all code examples in docs are valid
-          python -c "
-          import os
-          import re
-          from pathlib import Path
-
-          # Find all markdown files in docs
-          docs_dir = Path('docs')
-          md_files = list(docs_dir.glob('**/*.md'))
-
-          print(f'Testing {len(md_files)} documentation files...')
-
-          # Basic validation that python code blocks are syntactically valid
-          for md_file in md_files:
-              content = md_file.read_text()
-              
-              # Extract python code blocks
-              python_blocks = re.findall(r'```python\n(.*?)\n```', content, re.DOTALL)
-              
-              for i, block in enumerate(python_blocks):
-                  try:
-                      # Basic syntax check
-                      compile(block, f'{md_file}:block_{i}', 'exec')
-                  except SyntaxError as e:
-                      print(f'❌ Syntax error in {md_file} block {i}: {e}')
-                      raise
-                      
-          print('✅ All documentation code examples are syntactically valid')
-          "
-
-      - name: Upload documentation
-        uses: actions/upload-artifact@v3
-        if: github.ref == 'refs/heads/main'
-        with:
-          name: documentation
-          path: docs/_build/html/

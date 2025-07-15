@@ -48,7 +48,11 @@ Repository = "https://github.com/yourusername/nb-ui.git"
 "Bug Tracker" = "https://github.com/yourusername/nb-ui/issues"
 
 [tool.setuptools.packages.find]
-include = ["nb_ui*"]
+where = ["src"]
+include = ["*"]
+
+[tool.setuptools.package-dir]
+"" = "src"
 
 [tool.black]
 line-length = 88
