@@ -1,0 +1,7 @@
+# Table of contents
+format: jb-book
+root: intro
+chapters:
+  - file: getting-started
+  - file: api/components
+  - file: api/utilities

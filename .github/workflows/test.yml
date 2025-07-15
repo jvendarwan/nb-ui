@@ -1,0 +1,320 @@
+name: Test nb-ui Components
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, '3.10', '3.11']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install -r tests/requirements.txt
+
+      - name: Install package in development mode
+        run: pip install -e .
+
+      - name: Lint with flake8
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+
+      - name: Format check with black
+        run: |
+          black --check --diff src/
+
+      - name: Run tests with pytest
+        run: |
+          pytest tests/ \
+            --verbose \
+            --cov=nb_ui \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term-missing \
+            --cov-fail-under=85
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        if: matrix.python-version == '3.9'
+        with:
+          name: coverage-report
+          path: htmlcov/
+
+  test-notebooks:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install jupyter nbconvert
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Test example notebooks
+        run: |
+          # Test that example notebooks execute without errors
+          jupyter nbconvert --to notebook --execute demo_usage.ipynb --output demo_test.ipynb
+          jupyter nbconvert --to notebook --execute docs/quick-start.ipynb --output quick-start-test.ipynb
+
+      - name: Validate notebook outputs
+        run: |
+          # Basic validation that notebooks contain expected outputs
+          python -c "
+          import json
+
+          # Check demo notebook
+          with open('demo_test.ipynb') as f:
+              demo_nb = json.load(f)
+
+          # Verify notebook executed successfully
+          assert any(cell.get('cell_type') == 'code' and 
+                    cell.get('outputs') for cell in demo_nb['cells']), 'Demo notebook should have code outputs'
+
+          print('✅ Demo notebook executed successfully')
+
+          # Check quick-start notebook
+          with open('quick-start-test.ipynb') as f:
+              qs_nb = json.load(f)
+              
+          assert any(cell.get('cell_type') == 'code' and 
+                    cell.get('outputs') for cell in qs_nb['cells']), 'Quick-start notebook should have code outputs'
+                    
+          print('✅ Quick-start notebook executed successfully')
+          "
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Run integration tests
+        run: |
+          # Test component integration
+          python -c "
+          from nb_ui.components.buttons import Button
+          from nb_ui.components.alerts import Alert
+          from nb_ui.components.layout import Stack, Row, Col
+          from nb_ui.components.cards import Card
+          from nb_ui.components.typography import Typography
+
+          # Test basic component creation
+          button = Button('Test Button')
+          alert = Alert('Test Alert', severity='info')
+          card = Card('Test Card')
+          text = Typography('Test Text')
+
+          # Test layout integration
+          col1 = Col([button, alert])
+          col2 = Col([card, text])
+          row = Row([col1, col2])
+          stack = Stack([row])
+
+          # Test rendering
+          html = stack.render()
+          assert html.strip(), 'Integrated components should render'
+          assert 'Test Button' in html, 'Should contain button text'
+          assert 'Test Alert' in html, 'Should contain alert text'
+          assert 'Test Card' in html, 'Should contain card text'
+          assert 'Test Text' in html, 'Should contain typography text'
+
+          print('✅ Integration test passed')
+          "
+
+      - name: Test theme integration
+        run: |
+          python -c "
+          from nb_ui.components.buttons import Button
+          from nb_ui.themes import light_theme, dark_theme
+
+          # Test with different themes
+          light_button = Button('Light Button', theme='light')
+          dark_button = Button('Dark Button', theme='dark')
+
+          light_html = light_button.render()
+          dark_html = dark_button.render()
+
+          # Both should render without errors
+          assert light_html.strip(), 'Light theme button should render'
+          assert dark_html.strip(), 'Dark theme button should render'
+
+          # Should have different styling (basic check)
+          assert light_html != dark_html, 'Different themes should produce different output'
+
+          print('✅ Theme integration test passed')
+          "
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install pytest-benchmark
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Run performance tests
+        run: |
+          # Basic performance test
+          python -c "
+          import time
+          from nb_ui.components.buttons import Button
+          from nb_ui.components.layout import Stack
+
+          # Test component creation performance
+          start_time = time.time()
+
+          # Create many components
+          buttons = [Button(f'Button {i}') for i in range(100)]
+          stack = Stack(buttons)
+          html = stack.render()
+
+          end_time = time.time()
+          duration = end_time - start_time
+
+          # Should complete within reasonable time (5 seconds for 100 components)
+          assert duration < 5.0, f'Performance test failed: took {duration:.2f}s for 100 components'
+          assert html.strip(), 'Performance test should produce valid output'
+
+          print(f'✅ Performance test passed: {duration:.2f}s for 100 components')
+          "
+
+  docs-test:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install jupyter-book
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Build documentation
+        run: |
+          # Build the documentation
+          jupyter-book build docs/
+
+      - name: Test documentation examples
+        run: |
+          # Test that all code examples in docs are valid
+          python -c "
+          import os
+          import re
+          from pathlib import Path
+
+          # Find all markdown files in docs
+          docs_dir = Path('docs')
+          md_files = list(docs_dir.glob('**/*.md'))
+
+          print(f'Testing {len(md_files)} documentation files...')
+
+          # Basic validation that python code blocks are syntactically valid
+          for md_file in md_files:
+              content = md_file.read_text()
+              
+              # Extract python code blocks
+              python_blocks = re.findall(r'```python\n(.*?)\n```', content, re.DOTALL)
+              
+              for i, block in enumerate(python_blocks):
+                  try:
+                      # Basic syntax check
+                      compile(block, f'{md_file}:block_{i}', 'exec')
+                  except SyntaxError as e:
+                      print(f'❌ Syntax error in {md_file} block {i}: {e}')
+                      raise
+                      
+          print('✅ All documentation code examples are syntactically valid')
+          "
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: documentation
+          path: docs/_build/html/
