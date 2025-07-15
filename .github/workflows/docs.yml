@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-# Add explicit permissions for GitHub Pages deployment
 permissions:
   contents: read
   pages: write
@@ -23,7 +22,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -38,6 +37,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.TOKEN }}
           publish_dir: docs/_build/html
           force_orphan: true
